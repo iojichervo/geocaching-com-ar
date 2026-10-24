@@ -1,0 +1,12 @@
+@font-face {
+  font-family: 'Audiowide';
+  font-style: normal;
+  font-weight: 400;
+  src: url(../ext/fonts.gstatic.com/s/audiowide/v14/l7gdbjpo0cum0ckerWCdlg_L.ttf) format('truetype');
+}
+@font-face {
+  font-family: 'Trade Winds';
+  font-style: normal;
+  font-weight: 400;
+  src: url(../ext/fonts.gstatic.com/s/tradewinds/v15/AYCPpXPpYNIIT7h8-QenM0Jt5vY.ttf) format('truetype');
+}
