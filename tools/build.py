@@ -28,10 +28,12 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CACHE = os.path.join(ROOT, ".cache")
 SITE_HOSTS = {"geocaching.com.ar", "www.geocaching.com.ar"}
 STAMP = "2022"  # Wayback picks the capture closest to this
+# the contact form needs a server, so it is left out
+SKIP_PAGES = {"contacto"}
 SEEDS = [
     "", "argentinaworld", "nosotros", "guia-geocaching", "informe-anual-ga",
     "estadisticas-de-ga", "utilidades", "el-cache-del-ano", "cache-virtual", "earthcache",
-    "benchmark", "registro-de-benchmarks", "la-ruta-40", "caches-rn40", "contacto",
+    "benchmark", "registro-de-benchmarks", "la-ruta-40", "caches-rn40",
 ]
 CRAWL_LIMIT = 60
 # the Sep 2022 capture of the home page is a hosting placeholder; use the Nov 2021 one
@@ -100,6 +102,8 @@ def is_page_path(path):
     if path == "":
         return True
     if re.search(r"\.[a-z0-9]{2,5}$", path, re.I):
+        return False
+    if path in SKIP_PAGES:
         return False
     return not re.match(r"(wp-|feed|category|tag|author|comments|xmlrpc|\?)", path)
 
@@ -221,10 +225,14 @@ def rewrite_html(text, slug, known_pages):
     # inline JSON escapes slashes; only rewrite asset/page URLs, leave the rest
     text = URL_RE.sub(sub, text)
 
-    # static-site tweaks
-    text = re.sub(r"(<div id=\"footer-info\">)(.*?)(</div>)",
-                  r"\1\2 &middot; Recreaci&oacute;n est&aacute;tica basada en las copias de web.archive.org\3",
-                  text, count=1, flags=re.S)
+    # static-site tweaks: no contact page, dead blog link, no search box
+    text = re.sub(r"<li[^>]*>\s*<a href=\"[^\"]*(?:contacto/|geocachingargentina\.blogspot\.com/?)\"[^>]*>[^<]*</a>\s*</li>", "", text)
+    text = re.sub(r"<div class=\"et_pb_button_wrapper\"><a[^>]*href=\"[^\"]*/contacto/?\"[^>]*>.*?</a></div>", "", text, flags=re.S)
+    # PDFs that were never archived
+    text = re.sub(r"<div class=\"et_pb_button_wrapper\"><a[^>]*href=\"[^\"]*(?:ruta40\.pdf|Informe%20Anual%202018\.pdf)\"[^>]*>.*?</a></div>", "", text, flags=re.S)
+    text = re.sub(r"<a href=\"http://localhost/[^\"]*\"[^>]*>(.*?)</a>", r"\1", text, flags=re.S)
+    text = re.sub(r"<div class=\"et_search_outer\">.*?</form>\s*<span class=\"et_close_search_field\"></span>\s*</div>\s*</div>", "", text, flags=re.S)
+    text = text.replace("</head>", "<style>#et_top_search,.et_search_outer{display:none!important}</style></head>", 1)
     return text
 
 
