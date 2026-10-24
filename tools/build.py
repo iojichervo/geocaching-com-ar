@@ -232,6 +232,8 @@ def rewrite_html(text, slug, known_pages):
     text = re.sub(r"<div class=\"et_pb_button_wrapper\"><a[^>]*href=\"[^\"]*(?:ruta40\.pdf|Informe%20Anual%202018\.pdf)\"[^>]*>.*?</a></div>", "", text, flags=re.S)
     text = re.sub(r"<a href=\"http://localhost/[^\"]*\"[^>]*>(.*?)</a>", r"\1", text, flags=re.S)
     text = re.sub(r"<div class=\"et_search_outer\">.*?</form>\s*<span class=\"et_close_search_field\"></span>\s*</div>\s*</div>", "", text, flags=re.S)
+    fav = rel_to(depth, "favicon.svg")
+    text = text.replace("</head>", f'<link rel="icon" href="{fav}" type="image/svg+xml">\n</head>', 1)
     text = text.replace("</head>", "<style>#et_top_search,.et_search_outer{display:none!important}</style></head>", 1)
     return text
 
